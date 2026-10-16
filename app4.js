@@ -38,6 +38,9 @@ function tutorCtx(it){
   const c = {title: it.title, kind: KIND_LABEL[it.kind] || it.kind, cat: it.cat, scenario: strip(it.scenario || it.ctx || it.persona || ''), task: it.task || it.title, hint: it.hint || '', checklist: it.checklist || []};
   if (it.kind === 'sql') { c.reference = it.ref; c.extra = 'Диалект SQLite. Схема БД:\n' + SQL_SCHEMA.replace(/INSERT INTO[\s\S]*?;/g, '').trim(); }
   else if (it.kind === 'hunt' || it.kind === 'api') { c.extra = (it.kind === 'api' ? 'Ученик тестирует REST API в API-клиенте по документации: ' : 'Ученик проводит исследовательское тестирование веб-формы на стенде с DevTools: ') + strip(it.spec) + '\nНа стенде внедрены дефекты (НЕ называй их прямо, кроме режима разбора): ' + it.bugs.map(b => b.title + ' — ' + b.how).join('; '); c.reference = 'Список дефектов: ' + it.bugs.map(b => b.title).join('; '); }
+  else if (it.kind === 'logs') { c.scenario = it.scenario; c.task = it.question; c.reference = it.reference; c.extra = 'Ученик ищет в логах сервисов (фильтры по сервису, уровню, request-id). Правильный request-id и сервис-первопричину НЕ называй, кроме режима разбора.'; }
+  else if (it.kind === 'triage') { c.extra = 'Требования: ' + strip(it.reqs) + '\nВходящие баги: ' + it.items.map(b => `${b.id} «${b.title}»: ${b.body}`).join(' | '); c.reference = it.items.map(b => `${b.id}: ${b.act}${b.dup ? ' → ' + b.dup : ''}${b.sev ? ' ' + b.sev.join('/') + ' ' + b.prio.join('/') : ''} — ${b.why}`).join('\n'); }
+  else if (it.kind === 'auto') { const h = APIHUNT.find(x => x.api === it.api); c.extra = 'Ученик пишет коллекцию запросов с тестами (test/expect, env.set и {{var}}) к API: ' + strip(h.spec) + '\nКоллекция должна проходить на корректной сборке и падать на дефектах: ' + h.bugs.map(b => b.title).join('; '); c.reference = it.example; }
   else if (it.kind === 'interview') c.reference = it.answer;
   else if (it.kind === 'quiz') c.extra = 'Вопросы теста: ' + it.questions.map(q => q.q).join(' | ');
   else if (it.kind === 'inbox') c.extra = 'Шаги ситуации: ' + it.steps.map(s => `${s.from}: ${s.text}`).join(' | ');
@@ -45,7 +48,7 @@ function tutorCtx(it){
   else c.reference = strip(it.reference || '');
   return c;
 }
-const HAS_SOLUTION = it => ['case', 'stage', 'sql', 'interview', 'hunt', 'api'].includes(it.kind);
+const HAS_SOLUTION = it => ['case', 'stage', 'sql', 'interview', 'hunt', 'api', 'logs', 'triage', 'auto'].includes(it.kind);
 const T_ = id => (S.tutor[id] = S.tutor[id] || {hints: [], chat: []});
 
 async function askTutor(id, mode){
@@ -72,6 +75,9 @@ async function askTutor(id, mode){
 function showStaticSolution(id){ const T = T_(id); T.staticSol = true; T.solSeen = true; TUT.open[id] = true; save(); render(); }
 function staticSolutionHtml(it){
   if (it.kind === 'sql') return `<pre class="mono small codeblk">${esc(it.ref)}</pre>`;
+  if (it.kind === 'logs') return `<p>request-id: <code>${it.answer.req}</code>, первопричина: ${esc(it.answer.svc)}.</p><p>${esc(it.reference)}</p>`;
+  if (it.kind === 'triage') return `<ul>${it.items.map(b => `<li><b>${b.id}</b>: ${esc(ACT_RU[b.act])}${b.dup ? ' → ' + b.dup : ''}${b.sev ? ` · ${b.sev.join('/')} · ${b.prio.join('/')}` : ''} — ${esc(b.why)}</li>`).join('')}</ul>`;
+  if (it.kind === 'auto') { const h = APIHUNT.find(x => x.api === it.api); return `<p>Пример теста:</p><pre class="mono small codeblk">${esc(it.example)}</pre><p>Что должна ловить коллекция:</p><ol>${h.bugs.map(b => `<li>${esc(b.title)} — ${esc(b.how)}</li>`).join('')}</ol>`; }
   if (it.kind === 'hunt' || it.kind === 'api') return `<ol>${it.bugs.map(b => `<li><b>${esc(b.title)}</b> — ${esc(b.how)}</li>`).join('')}</ol>`;
   if (it.kind === 'interview') return `<p>${esc(it.answer)}</p>`;
   return `<div class="txt">${it.reference || ''}</div>`;

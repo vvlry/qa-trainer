@@ -207,12 +207,15 @@ const SKILLS = [
  ['Middle','Находит больше половины багов на любом стенде', ()=>kindScores('hunt').filter(s=>s>=0.75).length>=4, '4 UI-стенда на ≥75%'],
  ['Middle','Сложный SQL: JOIN, агрегаты, поиск аномалий', ()=>['sql-5','sql-6','sql-7','sql-8','sql-9','sql-10'].filter(i=>best(i)>=0.8).length>=4, '4 из 6 SQL-задач 5–10 на ≥80%'],
  ['Middle','Тестирует требования до разработки', ()=>best('case-ta-1')>=0.75 && kindScores('elicit').filter(s=>s>=0.7).length>=1, 'кейс «Тестирование требований» ≥75% и уточнение требований ≥70%'],
- ['Middle','Локализует дефекты через DevTools и логи', ()=>best('case-web-1')>=0.75 && best('case-log-1')>=0.75, 'кейсы «DevTools» и «Анализ логов» на ≥75%'],
+ ['Junior','Проверяет исправления и находит регрессии', ()=>kindScores('retest').filter(s=>s>=0.7).length>=2, '2 ретеста сборки 1.1 на ≥70%'],
+ ['Junior','Разбирает входящие баги: дубли, не-баги, severity и priority', ()=>best('triage-1')>=0.75, 'разбор «Утренний разбор по чекауту» на ≥75%'],
+ ['Middle','Локализует дефекты через DevTools и логи', ()=>best('case-web-1')>=0.75 && kindScores('logs').filter(s=>s>=0.75).length>=2, 'кейс «DevTools» ≥75% и 2 задачи по логам на ≥75%'],
+ ['Middle','Пишет автотесты API', ()=>kindScores('auto').filter(s=>s>=0.7).length>=2, '2 коллекции автотестов на ≥70%'],
  ['Middle','Планирует тестирование и регресс', ()=>best('case-doc-4')>=0.7 && best('case-rel-1')>=0.7, 'кейсы «Тест-план» и «Регресс за день» на ≥70%'],
  ['Middle','Тестирует мобильные приложения', ()=>best('case-mob-1')>=0.7 && best('quiz-mob')>=0.75, 'кейс по мобильному тестированию ≥70% и тест ≥75%'],
  ['Middle','Ведёт тестирование фичи от анализа до релиза', ()=>PROJECT.stages.every(s=>best(s.id)>=0.7), 'все 10 этапов проекта на ≥70%'],
- ['Senior','Разбирает прод-инциденты', ()=>best('case-log-2')>=0.85, 'кейс «Двойное списание» на ≥85%'],
- ['Senior','Выстраивает автоматизацию', ()=>best('case-auto-1')>=0.85 && best('case-auto-2')>=0.75, 'кейсы «Что автоматизировать» ≥85% и «Нестабильный автотест» ≥75%'],
+ ['Senior','Разбирает прод-инциденты', ()=>best('case-log-2')>=0.85 && best('logs-3')>=0.85, 'кейс и логи «Двойное списание» на ≥85%'],
+ ['Senior','Выстраивает автоматизацию', ()=>best('case-auto-1')>=0.85 && best('case-auto-2')>=0.75 && kindScores('auto').filter(s=>s>=0.9).length>=3, 'кейсы по автоматизации ≥85%/≥75% и все 3 коллекции автотестов на ≥90%'],
  ['Senior','Планирует нагрузочное тестирование и проверки безопасности', ()=>best('case-perf-1')>=0.8 && best('case-sec-1')>=0.8, 'кейсы по нагрузке и безопасности на ≥80%'],
  ['Senior','Принимает решение о релизе и отстаивает качество', ()=>best('case-rel-2')>=0.85 && kindScores('inbox').filter(s=>s>=0.85).length>=5, 'кейс Go/No-go ≥85% и 5 рабочих ситуаций ≥85%'],
  ['Senior','Стабильно высокий уровень', ()=>S.assess.length>=3 && S.assess.slice(-3).every(a=>a.total>=85), '3 ассессмента подряд на ≥85%'],
@@ -225,7 +228,7 @@ function matrixGrade(){
 }
 function growthHtml(){
   const pts = S.assess.map((a,i) => ({l: `№${i+1} ${a.date.slice(5)}`, v: a.total}));
-  const sp = speedSeries(['sql']), sc = speedSeries(['case','stage','hunt','api']);
+  const sp = speedSeries(['sql']), sc = speedSeries(['case','stage','hunt','api','logs','auto']);
   const last = S.assess[S.assess.length-1], due = !last || dayNum() - dayNumOf(last.date) >= 28;
   return `<div class="card"><div class="row" style="justify-content:space-between"><h2>Рост по контрольным ассессментам</h2><button class="btn ${due?'':'ghost'} sm" onclick="AS=null;go('assess')">${S.assess.length?'Пройти ассессмент':'Пройти входной ассессмент'}</button></div>
   ${lineChart(pts, {label:'Итоговый балл ассессментов'})}
@@ -397,7 +400,7 @@ go = function(v, id){
   _go(v, id);
   clearTimeout(intTimer);
   const D = S.days[today()], it = id && ITEMS[id];
-  if (v !== 'task' || !it || !['case','stage','hunt','api','sql'].includes(it.kind) || !D?.started || D.ended) return;
+  if (v !== 'task' || !it || !['case','stage','hunt','api','sql','auto','logs'].includes(it.kind) || !D?.started || D.ended) return;
   const n = (D.ints || 0); if (n >= 2) return;
   intTimer = setTimeout(() => { if (view === 'task' && current === id) showInterrupt(); }, (3 + Math.random()*4) * 60000);
 };

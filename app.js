@@ -15,16 +15,16 @@ function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){
 
 // ───────── Реестр всех заданий ─────────
 const STAGE_CAT = {p1:'Тест-анализ',p2:'Процесс и релизы',p3:'Тест-дизайн',p4:'Тестовая документация',p5:'SQL и данные',p6:'API',p7:'Исследовательское тестирование',p8:'Баг-репорты',p9:'Мобильное тестирование',p10:'Процесс и релизы'};
-const KIND_LABEL = {hunt:'Поиск багов', api:'API-тестирование', sql:'SQL', case:'Кейс', quiz:'Тест по теории', inbox:'Рабочая ситуация', stage:'Проект', interview:'Собеседование', cards:'Карточки', journal:'Рефлексия', standup:'Стендап', eod:'Отчёт руководителю'};
+const KIND_LABEL = {hunt:'Поиск багов', api:'API-тестирование', auto:'Автотесты API', logs:'Анализ логов', triage:'Баг-трекер', retest:'Ретест', sql:'SQL', case:'Кейс', quiz:'Тест по теории', inbox:'Рабочая ситуация', stage:'Проект', interview:'Собеседование', cards:'Карточки', journal:'Рефлексия', standup:'Стендап', eod:'Отчёт руководителю'};
 const ITEMS = {};
 TASKS.forEach(t => ITEMS[t.id] = {...t, kind:t.type, cat: t.type==='sql' ? 'SQL и данные' : t.cat});
 INBOX.forEach(t => ITEMS[t.id] = {...t, kind:'inbox', cat:'Коммуникации', level:2});
 PROJECT.stages.forEach((t,i) => ITEMS[t.id] = {...t, kind:'stage', cat:STAGE_CAT[t.id], level:3, n:i+1});
 INTERVIEW.forEach((q,i) => ITEMS['iv-'+i] = {id:'iv-'+i, kind:'interview', cat:'Собеседование', title:q[0], answer:q[1], level:2});
-[...BUGHUNT, ...APIHUNT].forEach(t => ITEMS[t.id] = t);
-const XP_TABLE = {hunt:it=>40+10*it.level, api:it=>40+10*it.level, sql:it=>20+10*it.level, case:it=>40+10*it.level, quiz:it=>10*(it.questions?.length||4), inbox:()=>30, stage:()=>80, interview:()=>15, standup:()=>20, eod:()=>30};
+[...BUGHUNT, ...APIHUNT, ...AUTOTASKS, ...LOGTASKS, ...TRIAGE].forEach(t => ITEMS[t.id] = t);
+const XP_TABLE = {hunt:it=>40+10*it.level, api:it=>40+10*it.level, auto:it=>40+10*it.level, logs:()=>50, triage:()=>40, retest:()=>40, sql:it=>20+10*it.level, case:it=>40+10*it.level, quiz:it=>10*(it.questions?.length||4), inbox:()=>30, stage:()=>80, interview:()=>15, standup:()=>20, eod:()=>30};
 const XPMAX = it => (XP_TABLE[it.kind] || (()=>10))(it);
-const EST = {sql:10, case:25, quiz:5, inbox:10, stage:30, interview:7, cards:10, journal:5, hunt:30, api:30, elicit:20};
+const EST = {sql:10, case:25, quiz:5, inbox:10, stage:30, interview:7, cards:10, journal:5, hunt:30, api:30, elicit:20, auto:40, logs:20, triage:15, retest:20};
 
 const timers = {};
 function startTimer(id){ if (!timers[id]) timers[id] = Date.now(); }
@@ -96,7 +96,7 @@ function getPlan(k = today()){
   const sqls = TASKS.filter(t=>t.type==='sql'), cases = TASKS.filter(t=>t.type==='case'), quizzes = TASKS.filter(t=>t.type==='quiz');
   const inb = INBOX.map(t=>({id:t.id}));
   const carried = carriedTicket();
-  const work = [cases, BUGHUNT, APIHUNT][d % 3];
+  const work = [cases, BUGHUNT, cases, APIHUNT, LOGTASKS, TRIAGE, AUTOTASKS][d % 7];
   const caseId = carried || pickNext(work, d);
   const stage = PROJECT.stages.find(s=>!S.results[s.id]);
   const meet = stage ? stage.id : pickNext(cases.filter(c=>c.id!==caseId), d+1);
@@ -149,7 +149,7 @@ function ticketOf(id, k = today()){
   const p = S.plans[k]; if (!p) return null;
   const i = ticketIds(p).indexOf(id); if (i < 0) return null;
   const it = ITEMS[id], key = 'QA-' + (100 + (dayNumOf(k)*5) % 800 + i);
-  const who = {sql:PEOPLE.po, inbox:'Рабочий чат команды', case:PEOPLE[WHO_BY_CAT[it.cat]||'lead'], hunt:PEOPLE.tech, api:PEOPLE.dev, stage:PEOPLE.lead, quiz:PEOPLE.lead, elicit:PEOPLE.sa}[it.kind];
+  const who = {sql:PEOPLE.po, inbox:'Рабочий чат команды', case:PEOPLE[WHO_BY_CAT[it.cat]||'lead'], hunt:PEOPLE.tech, api:PEOPLE.dev, auto:PEOPLE.lead, logs:PEOPLE.tech, triage:PEOPLE.lead, stage:PEOPLE.lead, quiz:PEOPLE.lead, elicit:PEOPLE.sa}[it.kind];
   const carried = p.carried && id === p.case;
   const intro = {
     sql: `Привет! ${it.scenario} Проверь, пожалуйста, данные в БД тестового стенда до 12:00 и пришли SQL-запрос, которым проверял.`,
@@ -159,6 +159,9 @@ function ticketOf(id, k = today()){
     quiz: 'Плановая проверка знаний для всей команды QA — 5 минут, без подсказок и поисковика.',
     hunt: 'На тестовый стенд выкатили новую сборку. Проведи исследовательское тестирование по требованиям и заведи баг-репорты на всё, что найдёшь.',
     api: 'Выкатил на стенд новые методы. Проверь API по документации в API-клиенте и заведи дефекты, если что-то не так.',
+    auto: 'Хотим гонять API-тесты в CI на каждую сборку. Собери коллекцию запросов с тестами: она должна проходить на корректной сборке и падать на любом известном дефекте.',
+    logs: 'Пришёл инцидент от поддержки. Разберись по логам, что произошло и где первопричина, — нужен вывод и строки для баг-репорта.',
+    triage: 'Разбери, пожалуйста, входящие баги до планирования: прими в работу с severity и priority, отметь дубли, отклони не-баги, запроси данные, где их нет.',
     elicit: 'В 16:30 созвон по новой фиче, тестирование стартует завтра. Выясни всё, чего нет в требованиях: правила, границы, исключения, роли. У тебя до 20 вопросов.'
   }[it.kind];
   return {key, who, intro, carried, prio:['High','Medium','High','Highest','Low'][i], due:['12:00','11:45','16:00','14:00','17:30'][i], title: it.kind==='stage' ? `Проект «${PROJECT.short}»: ${it.title}` : it.title};
@@ -222,7 +225,7 @@ function vDay(){
   const cur = ph.find(x => !phaseDone(x)) || ph[ph.length-1];
   const done = ph.filter(x => phaseDone(x)).length;
   const label = x => x.key === 'tk' ? (ticketOf(x.id)?.key + ' · ' + ticketOf(x.id).title) : x.title;
-  const icon = x => ({arrive:'🏢', cards:'☕', standup:'🗣', planning:'🎯', retro:'🔁', lunch:'🍽', eod:'📝', end:'🏁'}[x.key] || ({sql:'🗄', inbox:'💬', case:'📋', stage:'🤝', quiz:'🎓', hunt:'🐞', api:'🔌', elicit:'🎙'}[ITEMS[x.id].kind]));
+  const icon = x => ({arrive:'🏢', cards:'☕', standup:'🗣', planning:'🎯', retro:'🔁', lunch:'🍽', eod:'📝', end:'🏁'}[x.key] || ({sql:'🗄', inbox:'💬', case:'📋', stage:'🤝', quiz:'🎓', hunt:'🐞', api:'🔌', auto:'🤖', logs:'📜', triage:'🗂', elicit:'🎙'}[ITEMS[x.id].kind]));
   return `
   <section class="hero">
     <div><div class="muted">${esc(fmtDay(k))}</div><h1>Рабочий день · ${cur.t}</h1>
@@ -491,7 +494,7 @@ function exportPortfolio(){
 // ───────── Библиотека ─────────
 function vLibrary(){
   lastList = 'library';
-  const kinds = [['all','Все'],['case','Кейсы'],['sql','SQL'],['hunt','Поиск багов'],['api','API-тестирование'],['elicit','Уточнение требований'],['quiz','Тесты'],['inbox','Рабочие ситуации']];
+  const kinds = [['all','Все'],['case','Кейсы'],['sql','SQL'],['hunt','Поиск багов'],['api','API-тестирование'],['auto','Автотесты API'],['logs','Логи'],['triage','Баг-трекер'],['elicit','Уточнение требований'],['quiz','Тесты'],['inbox','Рабочие ситуации']];
   const list = Object.values(ITEMS).filter(it=>kinds.some(k=>k[0]===it.kind) && (filter==='all'||it.kind===filter));
   return `<h1>Библиотека заданий</h1><div class="row">${kinds.map(([k,l])=>`<button class="btn sm ${filter===k?'':'ghost'}" onclick="filter='${k}';render()">${l}</button>`).join('')}</div>
   <div class="grid">${list.map(it=>{ const r = S.results[it.id]; return `<div class="tile ${r?'ok':''}" onclick="openTask('${it.id}')"><div class="tags"><span class="tag k-${it.kind}">${KIND_LABEL[it.kind]}</span><span class="tag">${esc(it.cat)}</span></div><b>${esc(it.title)}</b><div class="muted small">${r?`Лучший результат ${Math.round(r.score*100)}%`:'Не пройдено'} · ${'●'.repeat(it.level||1)}</div></div>`; }).join('')}</div>`;
