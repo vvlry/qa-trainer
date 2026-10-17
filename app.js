@@ -10,8 +10,9 @@ const keyOfNum = n => { const d = new Date(n*864e5); return `${d.getUTCFullYear(
 const fmtDay = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); };
 
 const def = () => ({results:{}, drafts:{}, checks:{}, cards:{}, cardLog:{}, log:[], journal:{}, mistakes:{}, plans:{}, days:{}, settings:{newCards:6, learn:true}, sprints:{}, elicitRun:{}, aiReviews:{}, vacancies:{}, assess:[], mocks:[], interrupts:[], mcards:[], gen:[], coach:{}, focus:{}, tutor:{}, learn:{done:{}, ans:{}, ai:{}}, hunt:{}});
-let S = (() => { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) return Object.assign(def(), s); } catch(e){} return def(); })();
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+// Если сохранённый прогресс не читается — откладываем его в отдельный ключ, а не затираем
+let S = (() => { let raw = null; try { raw = localStorage.getItem(KEY); const s = JSON.parse(raw); if (s) return Object.assign(def(), s); } catch(e){ if (raw) { try { localStorage.setItem(KEY + '-corrupt-' + Date.now(), raw); } catch(_){} window.LOAD_ERR = true; } } return def(); })();
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){ if (!save.warned) { save.warned = true; setTimeout(() => toast('Не удалось сохранить прогресс: хранилище браузера переполнено. Сделайте экспорт копии в «Настройках».'), 0); } } }
 
 // ───────── Реестр всех заданий ─────────
 const STAGE_CAT = {p1:'Тест-анализ',p2:'Процесс и релизы',p3:'Тест-дизайн',p4:'Тестовая документация',p5:'SQL и данные',p6:'API',p7:'Исследовательское тестирование',p8:'Баг-репорты',p9:'Мобильное тестирование',p10:'Процесс и релизы'};

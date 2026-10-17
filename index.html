@@ -172,6 +172,8 @@ table.dt{font-size:12.5px;margin:4px 0}table.dt td,table.dt th{padding:4px 6px}t
 .mclegend .lg{display:inline-block;width:12px;height:12px;border:2px solid #000;vertical-align:-2px;margin-left:8px}.lg.done{background:#f0c040}.lg.open{background:#c6c6c6}.lg.locked{background:#3a3a3a}
 .advt{position:fixed;top:16px;right:16px;z-index:30;display:flex;gap:12px;align-items:center;background:#212121;color:#fff;border:3px solid #555;outline:2px solid #000;border-radius:4px;padding:10px 14px;min-width:260px;max-width:calc(100vw - 32px);transform:translateX(calc(100% + 40px));transition:transform .35s;cursor:pointer;font-weight:600}
 .advt.show{transform:none}.advt .fr{width:40px;height:40px;flex:none;font-size:22px;display:flex;align-items:center;justify-content:center;background:#f0c040;border:2px solid #000}.advh{color:#ffff55;font-size:13px}.advt.challenge .advh{color:#ff77ff}
+.updbar{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:25;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--acc);border-radius:12px;padding:8px 12px;box-shadow:0 8px 30px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}.updbar .btn{margin:0}
+.modal.wn{max-height:85vh;overflow:auto}.modal.wn ul{padding-left:20px}
 @media (max-width:800px){.logbar{grid-template-columns:1fr}}.warn{color:var(--warn)}
 @media (max-width:800px){.hunt{grid-template-columns:1fr}.tplgrid{grid-template-columns:1fr}.split{grid-template-columns:1fr}.daygrid{grid-template-columns:1fr}.timeline{position:static}.comp{grid-template-columns:1fr;gap:2px}.hero .ring{min-width:72px;height:72px}h1{font-size:22px}}
 @media print{header,.noprint,#toast{display:none}body{background:#fff;color:#000}main{padding:0}.card{border:0}}
@@ -207,21 +209,23 @@ window.addEventListener('error', e => {
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-<script src="data.js?v=19"></script>
-<script src="data2.js?v=19"></script>
-<script src="data3.js?v=19"></script>
-<script src="data4.js?v=19"></script>
-<script src="data5.js?v=19"></script>
-<script src="data6.js?v=19"></script>
-<script src="data7.js?v=19"></script>
-<script src="app.js?v=19"></script>
-<script src="app2.js?v=19"></script>
-<script src="hunt.js?v=19"></script>
-<script src="qa2.js?v=19"></script>
-<script src="app3.js?v=19"></script>
-<script src="app4.js?v=19"></script>
-<script src="app5.js?v=19"></script>
-<script src="tree.js?v=19"></script>
-<script type="module" src="ai.js?v=19"></script>
+<script src="version.js?v=20"></script>
+<script src="data.js?v=20"></script>
+<script src="data2.js?v=20"></script>
+<script src="data3.js?v=20"></script>
+<script src="data4.js?v=20"></script>
+<script src="data5.js?v=20"></script>
+<script src="data6.js?v=20"></script>
+<script src="data7.js?v=20"></script>
+<script src="app.js?v=20"></script>
+<script src="update.js?v=21"></script>
+<script src="app2.js?v=20"></script>
+<script src="hunt.js?v=20"></script>
+<script src="qa2.js?v=20"></script>
+<script src="app3.js?v=20"></script>
+<script src="app4.js?v=20"></script>
+<script src="app5.js?v=20"></script>
+<script src="tree.js?v=20"></script>
+<script type="module" src="ai.js?v=20"></script>
 </body>
 </html>
