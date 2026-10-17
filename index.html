@@ -152,6 +152,26 @@ table.dt{font-size:12.5px;margin:4px 0}table.dt td,table.dt th{padding:4px 6px}t
 .dtsel{margin:0 0 0 auto;padding:3px 6px;font-size:12px;border-radius:6px}.tests{margin:6px 0;padding:6px 10px;border-left:3px solid var(--line);background:var(--bg);border-radius:0 6px 6px 0}
 .logbar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;align-items:center}.logbar select,.logbar .sbi{margin:0;width:100%}.logs{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:8px}.logs table{margin:0}.logs td{vertical-align:top}.logs td:nth-child(2){white-space:nowrap}.logs a,.small a,p a{color:var(--acc)}.logs td.mono{word-break:break-word}
 .lv-ERROR{color:var(--bad);font-weight:700}.lv-WARN{color:var(--warn);font-weight:600}.lv-INFO{color:var(--muted)}tr.pinned{background:var(--acc2)}.pin{border:0;background:none;cursor:pointer;color:var(--muted);font-size:14px;padding:0 4px}
+.mcwrap{overflow:auto;max-height:72vh;margin:12px 0;border:4px solid #1b1b1b;border-radius:4px;cursor:grab;background:#5b4330;background-image:linear-gradient(rgba(0,0,0,.2) 2px,transparent 2px),linear-gradient(90deg,rgba(0,0,0,.2) 2px,transparent 2px),radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.5px);background-size:32px 32px,32px 32px,8px 8px;box-shadow:inset 0 0 0 2px #8b6a4a,inset 0 0 60px rgba(0,0,0,.55)}
+.mcwrap.drag{cursor:grabbing;user-select:none}.mctree{position:relative}.mclines{position:absolute;left:0;top:0;pointer-events:none}
+.mclines .ln-o{stroke:#000;stroke-width:6;fill:none}.mclines .ln{stroke:#8a8a8a;stroke-width:2;fill:none}.mclines .ln.lit{stroke:#fff}
+.mcn{position:absolute;width:54px;cursor:pointer;text-align:center}
+.mcn .fr{width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-size:27px;background:#c6c6c6;border:3px solid;border-color:#fff #555 #555 #fff;box-shadow:0 0 0 2px #000;transition:transform .12s}
+.mcn.done .fr{background:#f0c040;border-color:#fff3b0 #9a6a10 #9a6a10 #fff3b0}
+.mcn.locked .fr{background:#3a3a3a;border-color:#5a5a5a #222 #222 #5a5a5a;font-size:20px;opacity:.85}
+.mcn.goal .fr{border-radius:50%}
+.mcn.challenge .fr{border-radius:6px;background:#b98ad8;border-color:#e6ccf6 #6a3a8a #6a3a8a #e6ccf6;box-shadow:0 0 0 2px #000,0 0 14px rgba(200,120,255,.55)}
+.mcn.challenge.done .fr{background:#f0c040;border-color:#fff3b0 #9a6a10 #9a6a10 #fff3b0;box-shadow:0 0 0 2px #000,0 0 16px rgba(255,210,80,.8)}
+.mcn.challenge.locked .fr{background:#3a3a3a;border-color:#5a5a5a #222 #222 #5a5a5a;box-shadow:0 0 0 2px #000}
+.mcn .lb{position:absolute;top:62px;left:50%;transform:translateX(-50%);width:132px;font-size:11.5px;line-height:1.25;color:#fff;font-weight:700;text-shadow:1px 1px 0 #000,-1px 0 2px #000,0 0 4px #000}
+.mcn.locked .lb{color:#b5b5b5}.mcn.done .lb{color:#ffe680}
+.mcn:hover .fr{transform:translateY(-2px)}.mcn.sel .fr{outline:3px solid #fff;outline-offset:4px}
+.mctip{background:#100010;border:3px solid #2b0d5e;outline:2px solid #000;border-radius:4px;color:#e8e8e8;padding:12px 16px;margin:12px 0}
+.mctip.done{border-color:#7a5a10}.mct{color:#ffff55;font-size:17px}.mctip p{color:#d8d8d8}.mctip a{color:#55ffff}.mctip h3{color:#aaa}
+.mcreq{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.1)}.mcreq .lt{flex:1}.mcreq.ok{color:#7f7}.mcreq .btn{margin:0}
+.mclegend .lg{display:inline-block;width:12px;height:12px;border:2px solid #000;vertical-align:-2px;margin-left:8px}.lg.done{background:#f0c040}.lg.open{background:#c6c6c6}.lg.locked{background:#3a3a3a}
+.advt{position:fixed;top:16px;right:16px;z-index:30;display:flex;gap:12px;align-items:center;background:#212121;color:#fff;border:3px solid #555;outline:2px solid #000;border-radius:4px;padding:10px 14px;min-width:260px;max-width:calc(100vw - 32px);transform:translateX(calc(100% + 40px));transition:transform .35s;cursor:pointer;font-weight:600}
+.advt.show{transform:none}.advt .fr{width:40px;height:40px;flex:none;font-size:22px;display:flex;align-items:center;justify-content:center;background:#f0c040;border:2px solid #000}.advh{color:#ffff55;font-size:13px}.advt.challenge .advh{color:#ff77ff}
 @media (max-width:800px){.logbar{grid-template-columns:1fr}}.warn{color:var(--warn)}
 @media (max-width:800px){.hunt{grid-template-columns:1fr}.tplgrid{grid-template-columns:1fr}.split{grid-template-columns:1fr}.daygrid{grid-template-columns:1fr}.timeline{position:static}.comp{grid-template-columns:1fr;gap:2px}.hero .ring{min-width:72px;height:72px}h1{font-size:22px}}
 @media print{header,.noprint,#toast{display:none}body{background:#fff;color:#000}main{padding:0}.card{border:0}}
@@ -163,6 +183,7 @@ table.dt{font-size:12.5px;margin:4px 0}table.dt td,table.dt th{padding:4px 6px}t
   <nav>
     <button data-v="today" onclick="go('today')">Рабочий день</button>
     <button data-v="learn" onclick="go('learn')">Обучение</button>
+    <button data-v="tree" onclick="go('tree')">Дерево навыков</button>
     <button data-v="project" onclick="go('project')">Проект</button>
     <button data-v="library" onclick="go('library')">Задания</button>
     <button data-v="cards" onclick="go('cards')">Карточки</button>
@@ -186,20 +207,21 @@ window.addEventListener('error', e => {
 });
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-<script src="data.js?v=17"></script>
-<script src="data2.js?v=17"></script>
-<script src="data3.js?v=17"></script>
-<script src="data4.js?v=17"></script>
-<script src="data5.js?v=17"></script>
-<script src="data6.js?v=17"></script>
-<script src="data7.js?v=17"></script>
-<script src="app.js?v=17"></script>
-<script src="app2.js?v=17"></script>
-<script src="hunt.js?v=17"></script>
-<script src="qa2.js?v=17"></script>
-<script src="app3.js?v=17"></script>
-<script src="app4.js?v=17"></script>
-<script src="app5.js?v=17"></script>
-<script type="module" src="ai.js?v=17"></script>
+<script src="data.js?v=19"></script>
+<script src="data2.js?v=19"></script>
+<script src="data3.js?v=19"></script>
+<script src="data4.js?v=19"></script>
+<script src="data5.js?v=19"></script>
+<script src="data6.js?v=19"></script>
+<script src="data7.js?v=19"></script>
+<script src="app.js?v=19"></script>
+<script src="app2.js?v=19"></script>
+<script src="hunt.js?v=19"></script>
+<script src="qa2.js?v=19"></script>
+<script src="app3.js?v=19"></script>
+<script src="app4.js?v=19"></script>
+<script src="app5.js?v=19"></script>
+<script src="tree.js?v=19"></script>
+<script type="module" src="ai.js?v=19"></script>
 </body>
 </html>
